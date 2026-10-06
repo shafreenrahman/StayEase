@@ -118,9 +118,9 @@ The full functional-dependency analysis and 1NF→2NF→3NF walkthrough for ever
 
 ## Setup
 
-Run the following in order; each script depends on the one before it:
+Run the following scripts in order. Each script depends on the one before it:
 
-```bash
+```
 mysql -u your_username -p < schema/create_tables.sql
 mysql -u your_username -p < data/insert_data.sql
 mysql -u your_username -p < queries/queries.sql
