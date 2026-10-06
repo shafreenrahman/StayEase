@@ -74,7 +74,8 @@ CREATE TABLE reviews (
     reservation_id INT NOT NULL UNIQUE,
     rating INT NOT NULL,
     comment VARCHAR(500),
-    FOREIGN KEY (reservation_id) REFERENCES reservations(reservation_id)
+    FOREIGN KEY (reservation_id)
+        REFERENCES reservations(reservation_id)
 );
 
 CREATE TABLE housekeeping (
