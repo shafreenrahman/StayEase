@@ -159,18 +159,18 @@ The SQL for all ten queries is in `queries/queries.sql`, each preceded by a shor
 
 ## Sample Data
 
-`data/insert_data.sql` populates every table with realistic sample data — enough guests, rooms, and reservations (including some overlapping dates, cancellations, and repeat guests) to produce meaningful, non-trivial results for all ten business questions.
+`data/insert_data.sql` populates every table with realistic sample data — including guests, rooms, reservations, services, payments, employees, housekeeping tasks, and reviews. The sample data includes cancellations, repeat guests, and different reservation and housekeeping statuses to produce meaningful results for the project's fifteen business questions.
 
 ## Assumptions
 
 - Each reservation is for exactly one room; a booking spanning multiple rooms is entered as separate reservation rows.
-- A reservation can have more than one payment row (e.g. a deposit and a final settlement), but the sum of payments is expected to match the billed amount.
-- A review can only be left against a reservation that has reached `checked_out` status.
-- Room `status` (e.g. available, occupied, under maintenance) is maintained independently of reservation dates and is updated as part of check-in/check-out, not derived automatically.
+- A reservation can have more than one payment row (e.g. a deposit and a final settlement).
+- Each reservation can have at most one review, enforced by the `UNIQUE` constraint on `reviews.reservation_id`.
+- Room `status` (e.g. available, occupied, under maintenance) is maintained independently of reservation dates and is updated as part of check-in/check-out operations rather than being derived automatically from reservation dates.
 
 ## Design Notes
 
-The database is normalised up to 3NF. The many-to-many relationship between reservations and services is resolved through a dedicated bridge table (`service_usage`) rather than a repeating-group or comma-separated column. Room price and service price at the time of use are captured on the reservation and usage records themselves, rather than only referenced from `room_types` and `services`, so that later price changes don't alter the billing history of past stays. The full reasoning behind these and other decisions is documented in `docs/requirements_and_design_rationale.md`.
+The database is normalised up to 3NF. The many-to-many relationship between reservations and services is resolved through a dedicated bridge table (`service_usage`) rather than a repeating group or comma-separated column. Guest, room, service, payment, employee, housekeeping, and review information is separated into dedicated tables to reduce redundancy and maintain referential integrity. Values such as stay duration and service revenue are calculated through queries when required rather than stored as separate derived columns. The full reasoning behind these and other design decisions is documented in `docs/requirements_and_design_rationale.md`.
 
 ## Team Contributions
 
