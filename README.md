@@ -53,7 +53,7 @@ schema/
 data/
   insert_data.sql                -> DML: sample data for every table
 queries/
-  queries.sql                     -> SQL for all business questions (Q1-Q10), each with a comment
+  queries.sql                     -> SQL for all business questions (Q1-Q15), each with a comment
 diagrams/
   er_diagram.png                   -> Entity-Relationship diagram
   relational_schema.png            -> Relational schema / table diagram
@@ -70,20 +70,22 @@ The ER diagram (`diagrams/er_diagram.png`) shows all 10 entities, their attribut
 
 ## Database Schema
 
+## Database Schema
+
 | Table | Primary Key | Foreign Keys | Key Attributes |
 |---|---|---|---|
-| **guests** | guest_id | — | name, phone, email, id_proof_type, id_proof_no |
+| **guests** | guest_id | — | name, phone, email, id_proof_type |
 | **room_types** | room_type_id | — | name, capacity, base_price |
 | **rooms** | room_id | room_type_id → room_types | room_no, floor, status |
-| **reservations** | reservation_id | guest_id → guests, room_id → rooms | check_in, check_out, status, guest_count, rate_applied |
+| **reservations** | reservation_id | guest_id → guests, room_id → rooms | check_in, check_out, status, cancellation_date |
 | **payments** | payment_id | reservation_id → reservations | amount, method, paid_on |
 | **services** | service_id | — | name, price |
-| **service_usage** | usage_id | reservation_id → reservations, service_id → services | quantity, used_on, unit_price |
+| **service_usage** | usage_id | reservation_id → reservations, service_id → services | quantity, used_on |
 | **employees** | employee_id | — | name, role, phone |
 | **housekeeping** | task_id | room_id → rooms, employee_id → employees | task_date, status |
 | **reviews** | review_id | reservation_id → reservations | rating, comment |
 
-Full column-level definitions, data types, and constraints (`NOT NULL`, `UNIQUE`, `CHECK`, `DEFAULT`, `ON DELETE` / `ON UPDATE`) are in `schema/create_tables.sql`.
+Full column-level definitions, data types, and constraints (`NOT NULL`, `UNIQUE`, `CHECK`, `ON DELETE` / `ON UPDATE`) are in `schema/create_tables.sql`.
 
 ## Relationships
 
