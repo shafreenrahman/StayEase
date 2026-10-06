@@ -89,30 +89,30 @@ Full column-level definitions, data types, and constraints (`NOT NULL`, `UNIQUE`
 
 ## Relationships
 
-- **room_types → rooms** (1:N) — a room type has many rooms
-- **guests → reservations** (1:N) — a guest can make many reservations
-- **rooms → reservations** (1:N) — a room has many reservations over time, but only one active reservation at a time
-- **reservations → payments** (1:N) — a reservation can have multiple payments (e.g. partial payments)
-- **reservations ↔ services** (M:N) — resolved by the **service_usage** bridge table
-- **employees → housekeeping** (1:N) — an employee can be assigned many housekeeping tasks
-- **rooms → housekeeping** (1:N) — a room can have many housekeeping tasks over time
-- **reservations → reviews** (1:1) — at most one review per completed stay
+- **room_types → rooms** (1\:N) — a room type has many rooms
+- **guests → reservations** (1\:N) — a guest can make many reservations
+- **rooms → reservations** (1\:N) — a room can have many reservations over time, and each reservation refers to one room
+- **reservations → payments** (1\:N) — a reservation can have multiple payments (e.g. partial payments)
+- **reservations ↔ services** (M\:N) — resolved by the **service_usage** bridge table
+- **employees → housekeeping** (1\:N) — an employee can be assigned many housekeeping tasks
+- **rooms → housekeeping** (1\:N) — a room can have many housekeeping tasks over time
+- **reservations → reviews** (1:1) — a reservation can have at most one review
 
 ## Key Design Decisions
 
-- **`reservations.rate_applied`** stores the room's price *at the time of booking*. If `room_types.base_price` changes later, past reservations keep their original rate — this keeps revenue queries (Q4) accurate and matches how real hotel billing works.
-- **`service_usage.unit_price`** does the same for services — a spa price change won't silently rewrite the cost of a past stay.
-- **`guests.id_proof_no`** was added alongside `id_proof_type`, since an ID type without a number isn't useful for identity verification.
-- **No stored `total_amount` or `nights` columns.** Both are derivable from `check_in` / `check_out` and line items, so storing them would violate 3NF (a derived/transitive dependency) and risk going stale. They are computed in queries instead.
-- **One room per reservation.** A multi-room booking is modeled as multiple reservation rows rather than a multi-room reservation, keeping the schema simple and the cardinalities clean (see [Assumptions](#assumptions)).
+- **One room per reservation.** Each reservation is linked to exactly one room. A multi-room booking is represented using multiple reservation records, keeping the schema simple and the relationships clear.
+- **Reservations are linked to guests and rooms using foreign keys.** This maintains referential integrity and ensures that each reservation references an existing guest and room.
+- **Services and reservations have a many-to-many relationship**, resolved through the `service_usage` bridge table. This allows a reservation to use multiple services and a service to be used across multiple reservations.
+- **Reviews have a 1:1 relationship with reservations.** Each reservation can have at most one review, enforced through a `UNIQUE` constraint on `reviews.reservation_id`.
+- **No stored `total_amount` or `nights` columns.** These values can be calculated from the reservation dates and service usage when required, avoiding unnecessary duplication and reducing the risk of inconsistent stored values.
 
 ## Normalisation
 
 The schema is normalised up to Third Normal Form (3NF):
 
-- **1NF:** every column holds a single atomic value; no repeating groups (e.g. services used during a stay live in their own `service_usage` rows, not as a list in `reservations`).
-- **2NF:** every non-key attribute depends on the *whole* primary key — relevant mainly to the bridge table `service_usage`, where `quantity` and `unit_price` depend on the combination of `reservation_id` and `service_id`, not on either alone.
-- **3NF:** no non-key attribute depends on another non-key attribute. This is why computed values like total stay cost aren't stored as columns.
+- **1NF:** every column holds a single atomic value, and there are no repeating groups. For example, services used during a stay are stored as separate rows in `service_usage` rather than as a list inside `reservations`.
+- **2NF:** every non-key attribute depends on the whole primary key. In the implemented schema, tables use single-column primary keys such as `guest_id`, `reservation_id`, and `usage_id`. Therefore, partial dependencies cannot occur.
+- **3NF:** no non-key attribute depends on another non-key attribute. Related information is separated into appropriate tables, such as storing room type details in `room_types` and guest details in `guests` rather than repeating them in `rooms` or `reservations`. Derived values such as stay duration and service revenue are calculated through queries rather than stored separately, reducing redundancy and the risk of inconsistent values.
 
 The full functional-dependency analysis and 1NF→2NF→3NF walkthrough for every table is documented in `docs/normalisation.md`.
 
