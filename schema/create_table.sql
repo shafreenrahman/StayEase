@@ -74,11 +74,7 @@ CREATE TABLE reviews (
     reservation_id INT NOT NULL UNIQUE,
     rating INT NOT NULL,
     comment VARCHAR(500),
-    CONSTRAINT fk_reviews_reservation
-        FOREIGN KEY (reservation_id)
-        REFERENCES reservations(reservation_id)
-        ON DELETE CASCADE
-        ON UPDATE CASCADE
+    FOREIGN KEY (reservation_id) REFERENCES reservations(reservation_id)    
 );
 
 CREATE TABLE housekeeping (
