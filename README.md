@@ -70,8 +70,6 @@ The ER diagram (`diagrams/er_diagram.png`) shows all 10 entities, their attribut
 
 ## Database Schema
 
-## Database Schema
-
 | Table | Primary Key | Foreign Keys | Key Attributes |
 |---|---|---|---|
 | **guests** | guest_id | — | name, phone, email, id_proof_type |
