@@ -115,7 +115,7 @@ The following assumptions are made for the StayEase database:
 1. Each guest has a unique guest_id.
 2. Each room has a unique room_id.
 3. Each room belongs to one room type.
-4. A guest can make multiple reservations over time.
+4. A guest can make multiple reservations.
 5. A room can have multiple reservations over time.
 6. Each reservation is associated with one guest and one room.
 7. A reservation can have payment records associated with it.
